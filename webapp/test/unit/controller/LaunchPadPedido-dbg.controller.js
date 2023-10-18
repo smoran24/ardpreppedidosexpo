@@ -1,0 +1,1 @@
+sap.ui.define(["AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO/controller/LaunchPadPedido.controller"],function(n){"use strict";QUnit.module("LaunchPadPedido Controller");QUnit.test("I should test the LaunchPadPedido controller",function(o){var t=new n;t.onInit();o.ok(t)})});

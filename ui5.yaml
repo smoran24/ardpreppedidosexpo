@@ -1,0 +1,45 @@
+# yaml-language-server: $schema=https://sap.github.io/ui5-tooling/schema/ui5.yaml.json
+
+specVersion: "2.5"
+metadata:
+  name: ardpreppedidosexpo
+type: application
+server:
+  customMiddleware:
+    - name: fiori-tools-proxy
+      afterMiddleware: compression
+      configuration:
+        ignoreCertError: false # If set to true, certificate errors will be ignored. E.g. self-signed certificates will be accepted
+        ui5:
+          path:
+            - /resources
+            - /test-resources
+          url: https://ui5.sap.com
+        backend:
+          - path: /destinations/IDP_Nissan
+            pathPrefix: /
+            url: https://argf04rxd.accounts.ondemand.com
+            destination: IDP_Nissan
+          - path: /destinations/AR_DP_REP_DEST_HANA
+            pathPrefix: /
+            url: https://nissan-cfdatabases-databases-nissan-qas-xsjs-service.cfapps.us10.hana.ondemand.com/AR_DP_REP_PACKAGE_QAS/services
+            destination: AR_DP_REP_DEST_HANA
+          - path: /destinations/AR_DP_DEST_CPI
+            pathPrefix: /
+            url: https://l5355-iflmap.hcisbp.us2.hana.ondemand.com
+            destination: AR_DP_DEST_CPI
+          - path: /destinations/AR_DP_DEST_ODATA
+            pathPrefix: /
+            url: https://nissanargcf.us10.services.xfs.cloud.sap
+            destination: AR_DP_DEST_ODATA
+    - name: fiori-tools-appreload
+      afterMiddleware: compression
+      configuration:
+        port: 35729
+        path: webapp
+        delay: 300
+    - name: fiori-tools-preview
+      afterMiddleware: fiori-tools-appreload
+      configuration:
+        component: ardpreppedidosexpo
+        ui5Theme: sap_fiori_3
