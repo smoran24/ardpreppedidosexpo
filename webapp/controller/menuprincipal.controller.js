@@ -74,26 +74,26 @@
  					var grupos = dataR.groups;
  					
  					for (var i = 0; i < grupos.length; i++) {
- 						if (grupos[i].value === "AR_DP_REP_PEDIDO_INMOVILIZADO") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDOINMOVILIZADO") {
  							inmovilizado = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDO_STOCK") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDOSTOCK") {
  							Stock = true;
 
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDO_INTERNO") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDOINTERNO") {
  							interno = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDO_URGENTE") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDOURGENTE") {
  							urgente = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDO_DIFERIDO") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDODIFERIDO") {
  							diferido = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDO_KITS") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDOKITS") {
  							kits = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDO_ANORMAL") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDOANORMAL") {
  							anormal = true;
  						}
  						if (dataR.groups[i].value === "AR_DP_ADMINISTRADORDEALER" || dataR.groups[i].value === "AR_DP_USUARIODEALER") {
