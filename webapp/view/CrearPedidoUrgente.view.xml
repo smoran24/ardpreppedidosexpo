@@ -24,7 +24,8 @@
 								<VBox alignItems="Stretch" direction="Column" fitContainer="false" width="33%" justifyContent="Start" visible="true" displayInline="false">
 									<items>
 										<Text text="Pedido Dealer" width="100%" maxLines="1" wrapping="false" textAlign="Begin" textDirection="Inherit"/>
-										<MaskInput id="Pdealer" width="100%" placeholder="UR_1234567890" mask="UR_CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" placeholderSymbol="">
+										<!--<MaskInput id="Pdealer" width="100%" placeholder="UR_1234567890" mask="UR_CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" placeholderSymbol="">-->
+										<MaskInput id="Pdealer" width="100%" placeholder="EX_UR1234567890" mask="EX_URCCCCCCCCCC" placeholderSymbol="">
 											<rules>
 												<MaskInputRule maskFormatSymbol="C" regex="[^_]"/>
 											</rules>

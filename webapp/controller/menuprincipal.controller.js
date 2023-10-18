@@ -79,15 +79,14 @@
  						}
  						if (grupos[i].value === "AR_DP_REP_PEDIDOSTOCK") {
  							Stock = true;
-
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDOINTERNO") {
+ 						/*if (grupos[i].value === "AR_DP_REP_PEDIDOINTERNO") {
  							interno = true;
- 						}
+ 						}*/
  						if (grupos[i].value === "AR_DP_REP_PEDIDOURGENTE") {
  							urgente = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDODIFERIDO") {
+ 						/*if (grupos[i].value === "AR_DP_REP_PEDIDODIFERIDO") {
  							diferido = true;
  						}
  						if (grupos[i].value === "AR_DP_REP_PEDIDOKITS") {
@@ -95,7 +94,7 @@
  						}
  						if (grupos[i].value === "AR_DP_REP_PEDIDOANORMAL") {
  							anormal = true;
- 						}
+ 						}*/
  						if (dataR.groups[i].value === "AR_DP_ADMINISTRADORDEALER" || dataR.groups[i].value === "AR_DP_USUARIODEALER") {
  							codsucursal = true;
  						}
@@ -103,11 +102,11 @@
 
  					oView.byId("inmovilizado").setVisible(inmovilizado);
  					oView.byId("stock").setVisible(Stock);
- 					oView.byId("interno").setVisible(interno && !codsucursal);
+ 					//oView.byId("interno").setVisible(interno && !codsucursal);
  					oView.byId("urgente").setVisible(urgente);
- 					oView.byId("diferido").setVisible(diferido);
- 					oView.byId("kits").setVisible(kits);
- 					oView.byId("anormal").setVisible(anormal);
+ 					//oView.byId("diferido").setVisible(diferido);
+ 					//oView.byId("kits").setVisible(kits);
+ 					//oView.byId("anormal").setVisible(anormal);
  					
  					/*if (inmovilizado) {
  						oView.byId("inmovilizado").setVisible(true);
@@ -156,17 +155,17 @@
  				sap.ui.core.UIComponent.getRouterFor(this);
  			oRouter.navTo("inmovilizado");
  		},
- 		Interno: function () {
+ 		/*Interno: function () {
  			var oRouter =
  				sap.ui.core.UIComponent.getRouterFor(this);
  			oRouter.navTo("interno");
- 		},
+ 		},*/
  		Urgente: function () {
  			var oRouter =
  				sap.ui.core.UIComponent.getRouterFor(this);
  			oRouter.navTo("urgente");
  		},
- 		Diferido: function(){
+ 		/*Diferido: function(){
  			var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
  			oRouter.navTo("CrearPedidoDiferido");
  		},
@@ -177,7 +176,7 @@
  		Anormal: function(){
  			var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
  			oRouter.navTo("CrearPedidoAnormal");
- 		},
+ 		},*/
  		onSalir: function () {
  			var oCrossAppNavigator = sap.ushell.Container.getService("CrossApplicationNavigation");
  			oCrossAppNavigator.toExternal({
