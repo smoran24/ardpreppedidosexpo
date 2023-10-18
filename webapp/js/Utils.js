@@ -13,7 +13,7 @@ sap.ui.define([
 				let currentUser = this.loadCurrentUserData();
 				
 				currentUser.then(function(currentUserData){
-					var appModulePath = jQuery.sap.getModulePath("AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO");
+					var appModulePath = jQuery.sap.getModulePath("AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO");
 					$.ajax({
 						type: 'GET',
 						url: appModulePath + '/destinations/IDP_Nissan/service/scim/Users/' + currentUserData.name,
@@ -42,7 +42,7 @@ sap.ui.define([
 				dfdCurrentUser.resolve(this.currentUserData);
 			}else{
                 // var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-                var appModulePath = jQuery.sap.getModulePath("AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO");
+                var appModulePath = jQuery.sap.getModulePath("AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO");
 				$.ajax({
 					type: 'GET',
 					url:appModulePath + "/services/userapi/currentUser",

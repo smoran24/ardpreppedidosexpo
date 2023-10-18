@@ -1,4 +1,4 @@
-<mvc:View controllerName="AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.controller.LaunchPadPedido" xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+<mvc:View controllerName="AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.controller.LaunchPadPedido" xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
 	xmlns="sap.m">
 	<Shell id="shell">
 		<App id="app">

@@ -1,7 +1,7 @@
 /*global QUnit*/
 
 sap.ui.define([
-	"AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO/controller/LaunchPadPedido.controller"
+	"AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO/controller/LaunchPadPedido.controller"
 ], function (Controller) {
 	"use strict";
 

@@ -1,7 +1,7 @@
 {
     "_version": "1.12.0",
     "sap.app": {
-        "id": "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO",
+        "id": "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO",
         "type": "application",
         "i18n": "i18n/i18n.properties",
         "applicationVersion": {
@@ -54,7 +54,7 @@
     "sap.ui5": {
         "flexEnabled": false,
         "rootView": {
-            "viewName": "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.menuprincipal",
+            "viewName": "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.menuprincipal",
             "type": "XML",
             "async": true,
             "id": "menuprincipal"
@@ -75,7 +75,7 @@
             "i18n": {
                 "type": "sap.ui.model.resource.ResourceModel",
                 "settings": {
-                    "bundleName": "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.i18n.i18n"
+                    "bundleName": "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.i18n.i18n"
                 }
             },
             "": {
@@ -94,7 +94,7 @@
                 "routerClass": "sap.m.routing.Router",
                 "viewType": "XML",
                 "async": true,
-                "viewPath": "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view",
+                "viewPath": "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view",
                 "controlAggregation": "pages",
                 "controlId": "app",
                 "clearControlAggregation": false,

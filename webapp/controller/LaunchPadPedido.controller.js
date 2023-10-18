@@ -10,7 +10,7 @@ sap.ui.define([
 ], function (Controller, MessageToast, global, Fragment, Filter, jquery, Button, Dialog, Text) {
 	"use strict";
 	var t, oSAPuser, Stock, inmovilizado, interno, urgente, oView;
-	return Controller.extend("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.controller.LaunchPadPedido", {
+	return Controller.extend("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.controller.LaunchPadPedido", {
 		onInit: function () {
 	
 			t = this;
@@ -51,7 +51,7 @@ sap.ui.define([
 					var grupos = dataR.groups;
 					console.log(grupos);
 					for (var i = 0; i < grupos.length; i++) {
-						if (grupos[i].value === "AR_DP_REP_PEDIDOSTOCK") {
+						if (grupos[i].value === "AR_DP_REP_PEDIDO_EXPOSTOCK") {
 							Stock = "true";
 							if (Stock === "true") {
 								oView.byId("stock").setVisible(true);
@@ -62,7 +62,7 @@ sap.ui.define([
 							}
 						}
 
-						if (grupos[i].value === "AR_DP_REP_PEDIDOINMOVILIZADO") {
+						if (grupos[i].value === "AR_DP_REP_PEDIDO_EXPOINMOVILIZADO") {
 							inmovilizado = "true";
 							if (inmovilizado === "true") {
 								oView.byId("inmovilizado").setVisible(true);
@@ -72,7 +72,7 @@ sap.ui.define([
 							}
 						}
 
-						if (grupos[i].value === "AR_DP_REP_PEDIDOINTERNO") {
+						if (grupos[i].value === "AR_DP_REP_PEDIDO_EXPOINTERNO") {
 							interno = "true";
 							if (interno === "true") {
 								oView.byId("interno").setVisible(true);
@@ -83,7 +83,7 @@ sap.ui.define([
 							}
 						}
 
-						if (grupos[i].value === "AR_DP_REP_PEDIDOURGENTE") {
+						if (grupos[i].value === "AR_DP_REP_PEDIDO_EXPOURGENTE") {
 							urgente = "true";
 							if (urgente === "true") {
 								oView.byId("urgente").setVisible(true);

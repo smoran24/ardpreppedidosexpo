@@ -4,15 +4,15 @@ sap.ui.define([
 	'sap/ui/model/Filter',
 	"sap/ui/model/FilterOperator",
 	"sap/m/MessageBox",
-	"AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO/js/Dialogs/ValueHelpDialogMateriales",
-	"AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO/js/Utils",
+	"AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO/js/Dialogs/ValueHelpDialogMateriales",
+	"AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO/js/Utils",
 	"../utils/ValueHelp"
 ], function (Controller, Fragment, Filter, FilterOperator, MessageBox, ValueHelpDialogMateriales, Utils,ValueHelp) {
 	"use strict";
 	
 	let that;
 		
-	return Controller.extend("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.controller.CrearPedidoKits", {
+	return Controller.extend("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.controller.CrearPedidoKits", {
 		
 		onInit: function () {
 			that = this;
@@ -443,7 +443,7 @@ sap.ui.define([
 					if (!this._BOMPopover) {
 						this._BOMPopover = Fragment.load({
 							id: oView.getId(),
-							name: "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.Dialogs.BOMPopOver",
+							name: "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.Dialogs.BOMPopOver",
 							controller: this
 						}).then(function(oPopover) {
 							oView.addDependent(oPopover);
@@ -527,7 +527,7 @@ sap.ui.define([
 			// create dialog lazily
 			if (!oDialog) {
 				// create dialog via fragment factory
-				oDialog = sap.ui.xmlfragment(that.getView().getId(), "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.PopUp", this);
+				oDialog = sap.ui.xmlfragment(that.getView().getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.PopUp", this);
 				that.getView().addDependent(oDialog);
 			}
 			oDialog.open();

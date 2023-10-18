@@ -1,6 +1,6 @@
-sap.ui.define(["sap/ui/core/UIComponent", "sap/ui/Device", "AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO/model/models"], function (t, e, i) {
+sap.ui.define(["sap/ui/core/UIComponent", "sap/ui/Device", "AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO/model/models"], function (t, e, i) {
 	"use strict";
-	return t.extend("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.Component", {
+	return t.extend("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.Component", {
 		metadata: {
 			manifest: "json"
 		},

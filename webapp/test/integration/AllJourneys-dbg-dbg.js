@@ -7,7 +7,7 @@ sap.ui.define([
 
 	Opa5.extendConfig({
 		arrangements: new Startup(),
-		viewNamespace: "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.",
+		viewNamespace: "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.",
 		autoWait: true
 	});
 });

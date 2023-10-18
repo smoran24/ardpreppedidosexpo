@@ -18,7 +18,7 @@
  		anormal = false,
  		oView, codsucursal = false;
  	var block;
- 	return Controller.extend("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.controller.menuprincipal", {
+ 	return Controller.extend("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.controller.menuprincipal", {
 
  		onInit: function () {
             var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
@@ -74,26 +74,26 @@
  					var grupos = dataR.groups;
  					
  					for (var i = 0; i < grupos.length; i++) {
- 						if (grupos[i].value === "AR_DP_REP_PEDIDOINMOVILIZADO") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDO_INMOVILIZADO") {
  							inmovilizado = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDOSTOCK") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDO_STOCK") {
  							Stock = true;
 
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDOINTERNO") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDO_INTERNO") {
  							interno = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDOURGENTE") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDO_URGENTE") {
  							urgente = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDODIFERIDO") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDO_DIFERIDO") {
  							diferido = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDOKITS") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDO_KITS") {
  							kits = true;
  						}
- 						if (grupos[i].value === "AR_DP_REP_PEDIDOANORMAL") {
+ 						if (grupos[i].value === "AR_DP_REP_PEDIDO_ANORMAL") {
  							anormal = true;
  						}
  						if (dataR.groups[i].value === "AR_DP_ADMINISTRADORDEALER" || dataR.groups[i].value === "AR_DP_USUARIODEALER") {

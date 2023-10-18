@@ -17,10 +17,10 @@ sap.ui.define([
 		selectaut, codsucursal;
 	var mnext = [];
 	//	msext = [];
-	return Controller.extend("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.controller.CrearPedidoStock", {
+	return Controller.extend("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.controller.CrearPedidoStock", {
 		onInit: function () {
-			jQuery.sap.require("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.js.jszip");
-			jQuery.sap.require("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.js.xlsx");
+			jQuery.sap.require("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.js.jszip");
+			jQuery.sap.require("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.js.xlsx");
 
 			this._localModel = this.getOwnerComponent().getModel();
 			this._oDataHanaModel = this.getOwnerComponent().getModel("ODataHana");
@@ -370,7 +370,7 @@ sap.ui.define([
 			// create dialog lazily
 			if (!oDialog) {
 				// create dialog via fragment factory
-				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.Error", this);
+				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.Error", this);
 				oView.addDependent(oDialog);
 			}
 			oView.byId("dialogError").addStyleClass(this.getOwnerComponent().getContentDensityClass());
@@ -391,7 +391,7 @@ sap.ui.define([
 			// create dialog lazily
 			if (!oDialog) {
 				// create dialog via fragment factory
-				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.Error3", this);
+				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.Error3", this);
 				oView.addDependent(oDialog);
 			}
 			oView.byId("dialogError3").addStyleClass(this.getOwnerComponent().getContentDensityClass());
@@ -560,7 +560,7 @@ sap.ui.define([
 			this.inputId = oEvent.getSource().getId();
 			// create value help dialog
 			if (!this._valueHelpDialog) {
-				this._valueHelpDialog = sap.ui.xmlfragment("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.Dialog",
+				this._valueHelpDialog = sap.ui.xmlfragment("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.Dialog",
 					this
 				);
 				this.getView().addDependent(this._valueHelpDialog);
@@ -821,7 +821,7 @@ sap.ui.define([
 			// create dialog lazily
 
 			// create dialog via fragment factory
-			oDialog = sap.ui.xmlview(oView.getId(), "AR_DP_REP_EDIDO.AR_DP_REP_PEDIDO.view.LaunchPadPedido", this);
+			oDialog = sap.ui.xmlview(oView.getId(), "AR_DP_REP_EDIDO.AR_DP_REP_PEDIDO_EXPO.view.LaunchPadPedido", this);
 			oView.addDependent(oDialog);
 
 			oDialog.open();
@@ -857,7 +857,7 @@ sap.ui.define([
 			var f = flagperfil;
 			console.log(cantorg);
 			console.log(oView.getModel("listadoMateriales").oData);
-			sap.ui.controller("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.controller.CrearPedidoVerificado").jsoncreacion(ID_SOLICITANTE, a, b, c,
+			sap.ui.controller("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.controller.CrearPedidoVerificado").jsoncreacion(ID_SOLICITANTE, a, b, c,
 				d, e, f);
 			// var oRouter =
 			// 	sap.ui.core.UIComponent.getRouterFor(this);
@@ -875,7 +875,7 @@ sap.ui.define([
 			// create dialog lazily
 			if (!oDialog) {
 				// create dialog via fragment factory
-				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.PopUp", this);
+				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.PopUp", this);
 				oView.addDependent(oDialog);
 			}
 			oDialog.open();
@@ -890,7 +890,7 @@ sap.ui.define([
 			// create dialog lazily
 			if (!oDialog) {
 				// create dialog via fragment factory
-				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.formulario", this);
+				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.formulario", this);
 				oView.addDependent(oDialog);
 				this.getView().byId("Formulario").addStyleClass(this.getOwnerComponent().getContentDensityClass());
 			}

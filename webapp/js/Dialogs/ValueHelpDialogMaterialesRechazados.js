@@ -3,7 +3,7 @@ sap.ui.define([
 	"sap/ui/model/Filter",
 	"sap/ui/model/FilterOperator",
 	"sap/m/MessageBox",
-	'AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO/js/Utils'
+	'AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO/js/Utils'
 ], function (Fragment, Filter, FilterOperator, MessageBox, Utils) {
 	"use strict";
 	let that;
@@ -15,7 +15,7 @@ sap.ui.define([
 			this._localModel = ownerView.getModel();
 			if (!this._valueHelpDialog || !this._valueHelpDialog.oPopup) {
 				this._valueHelpDialog = Fragment.load({
-					name: "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.Dialogs.ValueHelpDialogMaterialesRechazados",
+					name: "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.Dialogs.ValueHelpDialogMaterialesRechazados",
 					controller: this
 				}).then(function (oValueHelpDialog) {
 					that.ownerView.addDependent(oValueHelpDialog);
@@ -46,7 +46,7 @@ sap.ui.define([
 		openMailDialog: function (material) {
 			if(!this._mailDialog){
 				this._mailDialog = Fragment.load({
-					name: "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.Correo",
+					name: "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.Correo",
 					controller: this
 				}).then(function (oMailDialog) {
 					that.ownerView.addDependent(oMailDialog);
@@ -168,7 +168,7 @@ sap.ui.define([
 			// create dialog lazily
 			if (!this._busyIndicator) {
 				// create dialog via fragment factory
-				this._busyIndicator = sap.ui.xmlfragment(this.ownerView.getId(), "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.PopUp", this);
+				this._busyIndicator = sap.ui.xmlfragment(this.ownerView.getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.PopUp", this);
 				this.ownerView.addDependent(this._busyIndicator);
 			}
 			this._busyIndicator.open();

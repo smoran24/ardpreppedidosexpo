@@ -3,7 +3,7 @@ sap.ui.define([
 ], function (Opa5) {
 	"use strict";
 
-	return Opa5.extend("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.test.integration.arrangements.Startup", {
+	return Opa5.extend("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.test.integration.arrangements.Startup", {
 
 		iStartMyApp: function (oOptionsParameter) {
 			var oOptions = oOptionsParameter || {};
@@ -14,7 +14,7 @@ sap.ui.define([
 			// start the app UI component
 			this.iStartMyUIComponent({
 				componentConfig: {
-					name: "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO",
+					name: "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO",
 					async: true
 				},
 				hash: oOptions.hash,

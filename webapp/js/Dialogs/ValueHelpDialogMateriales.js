@@ -13,7 +13,7 @@ sap.ui.define([
 			
 			if (!this._valueHelpDialog || !this._valueHelpDialog.oPopup) {
 				this._valueHelpDialog = Fragment.load({
-					name: "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.Dialogs.ValueHelpDialogMateriales",
+					name: "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.Dialogs.ValueHelpDialogMateriales",
 					controller: this
 				}).then(function (oValueHelpDialog) {
 					ownerView.addDependent(oValueHelpDialog);

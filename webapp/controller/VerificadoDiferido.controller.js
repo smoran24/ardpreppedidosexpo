@@ -8,13 +8,13 @@ sap.ui.define([
 	'sap/m/Link',
 	'sap/ui/model/json/JSONModel',
 	'sap/ui/model/Filter',
-	'AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO/js/Utils',
-	'AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO/js/Dialogs/ValueHelpDialogMaterialesRechazados'
+	'AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO/js/Utils',
+	'AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO/js/Dialogs/ValueHelpDialogMaterialesRechazados'
 ], function (Controller, Dialog, MessageBox, MessageToast, MessagePopover, MessageItem, Link, JSONModel, Filter, Utils, ValueHelpMaterialesRechazados) {
 	"use strict";
 	
 	let that;
-	return Controller.extend("AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.controller.VerificadoDiferido", {
+	return Controller.extend("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.controller.VerificadoDiferido", {
 		onInit: function () {
 			that = this;
 			
@@ -317,7 +317,7 @@ sap.ui.define([
 			// create dialog lazily
 			if (!oDialog) {
 				// create dialog via fragment factory
-				oDialog = sap.ui.xmlfragment(this.getView().getId(), "AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.PopUp", this);
+				oDialog = sap.ui.xmlfragment(this.getView().getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.PopUp", this);
 				this.getView().addDependent(oDialog);
 			}
 			oDialog.open();

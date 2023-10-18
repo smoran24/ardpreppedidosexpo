@@ -15,7 +15,7 @@ sap.ui.define([
 		
 		createHanaModel: function(){
            // var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-          	var appModulePath = jQuery.sap.getModulePath("AR_DP_REP_PEDIDO/AR_DP_REP_PEDIDO");
+          	var appModulePath = jQuery.sap.getModulePath("AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO");
 			let oModel = new ODataV2({"serviceUrl":appModulePath +  "/destinations/AR_DP_REP_DEST_HANA/ODATA_masterPedido.xsodata/"});
 			oModel.setUseBatch(false);
 			return oModel;

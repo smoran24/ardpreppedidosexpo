@@ -1,1 +1,1 @@
-sap.ui.define(["sap/ui/test/Opa5","./arrangements/Startup","./NavigationJourney"],function(e,a){"use strict";e.extendConfig({arrangements:new a,viewNamespace:"AR_DP_REP_PEDIDO.AR_DP_REP_PEDIDO.view.",autoWait:true})});
+sap.ui.define(["sap/ui/test/Opa5","./arrangements/Startup","./NavigationJourney"],function(e,a){"use strict";e.extendConfig({arrangements:new a,viewNamespace:"AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.",autoWait:true})});
