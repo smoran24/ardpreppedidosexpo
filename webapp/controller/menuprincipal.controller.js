@@ -128,11 +128,11 @@
 
  					} else {
  						oView.byId("urgente").setVisible(false);
- 					}*/
+ 					}
 
  					if (codsucursal) {
  						oView.byId("interno").setVisible(false);
- 					}
+ 					}*/
 
  				},
  				error: function (jqXHR, textStatus, errorThrown) {

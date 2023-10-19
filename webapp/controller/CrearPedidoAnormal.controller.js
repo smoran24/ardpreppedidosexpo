@@ -172,7 +172,7 @@ sap.ui.define([
 				
 				$.ajax({
 					type: 'POST',
-					url: appModulePath + '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_CHECK_CREDITO_SRV;v=1;o=AR_DP_ERP_OP_USER_COM/CreditoClienteSet',
+					url: appModulePath + '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_CHECK_CREDITO_SRV;v=1/CreditoClienteSet',
 					headers: {
 						"X-CSRF-Token": token
 					},
@@ -395,7 +395,7 @@ sap.ui.define([
                var appModulePath = jQuery.sap.getModulePath(appid);
 				$.ajax({
 					type: 'POST',
-					url:appModulePath + '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_4_SRV;v=1;o=AR_DP_ERP_OP_USER_COM/HeaderSet',
+					url:appModulePath + '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_4_SRV;v=1/HeaderSet',
 					headers: {
 						"X-CSRF-Token": token
 					},
@@ -424,7 +424,7 @@ sap.ui.define([
   var appModulePath = jQuery.sap.getModulePath(appid);
 			$.ajax({
 				type: 'GET',
-				url: appModulePath + '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_CHECK_CREDITO_SRV;v=1;o=AR_DP_ERP_OP_USER_COM',
+				url: appModulePath + '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_CHECK_CREDITO_SRV;v=1',
 				headers: {
 					"X-CSRF-Token": "Fetch"
 				},

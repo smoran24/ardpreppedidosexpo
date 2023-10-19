@@ -11,13 +11,13 @@
 									displayInline="false">
 									<items>
 										<Text text="Solicitante" width="100%" maxLines="1" wrapping="false" textAlign="Begin" textDirection="Inherit"/>
-										<ComboBox xmlns="sap.m" id="cmbcliente" placeholder="Destinatario" width="100%" items="{path: 'cliente>/'}" loadItems="ConsultaOdata4"
-											change="Destinatario">
+										<ComboBox xmlns="sap.m" id="cmbcliente" placeholder="Solicitante" width="100%" items="{/Solicitantes}" loadItems="loadSolicitantes"
+											change="loadSolicitanteDependantData">
 											<items>
-												<core:Item xmlns:core="sap.ui.core" key="{cliente>SOLICITANTE}" text="{cliente>NOMBRE_SOLICITANTE}"/>
+												<core:Item key="{SOLICITANTE}" text="{NOMBRE_SOLICITANTE}"/>
 											</items>
 										</ComboBox>
-										<Text text="Límite de Crédito" width="100%" maxLines="1" wrapping="false" textAlign="Begin" textDirection="Inherit" id="labelcredito"/>
+										<Text text="Límite de Crédito : $ {/LimiteDeCredito}" width="100%" wrapping="false" textAlign="Begin" textDirection="Inherit" id="labelcredito"/>
 									</items>
 								</VBox>
 								<HBox width="20px"/>
@@ -37,9 +37,9 @@
 								<VBox alignItems="Stretch" direction="Column" fitContainer="false" width="33%" justifyContent="Start" visible="true" displayInline="false">
 									<items>
 										<Text text="Destinatario" width="100%" maxLines="1" wrapping="false" textAlign="Begin" textDirection="Inherit"/>
-										<ComboBox xmlns="sap.m" id="interlocutor" width="100%" placeholder="Destinatario" items="{path: 'interlocutor>/'}">
+										<ComboBox id="interlocutor" width="100%" placeholder="Destinatario" items="{/Destinatarios}"  selectedKey="{/Pedido/Destinatario/Valor}">
 											<items>
-												<core:Item xmlns:core="sap.ui.core" key="{interlocutor>DESTINATARIO}" text="{interlocutor>DIRECCION}"/>
+												<core:Item key="{DESTINATARIO}" text="{DIRECCION}"/>
 											</items>
 										</ComboBox>
 									</items>
