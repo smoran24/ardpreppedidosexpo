@@ -147,8 +147,8 @@
 					<footer >
 						<Bar class="sapContrast sapContrastPlus">
 							<contentRight>
-								<Button id="Verificar" text="Verificar" type="Accept" press="validacampos" class="sapUiSmallMarginEnd"/>
-								<Button id="atras" text="Salir" type="Reject" press="atras" class="sapUiSmallMarginEnd"/>
+								<Button id="Verificar" text="Verificar" type="Accept" press="validarCamposPreVerificarStock" class="sapUiSmallMarginEnd"/>
+								<Button id="atras" text="Salir" type="Reject" press="navBack" class="sapUiSmallMarginEnd"/>
 							</contentRight>
 						</Bar>
 					</footer>

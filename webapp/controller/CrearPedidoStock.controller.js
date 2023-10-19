@@ -73,14 +73,6 @@ sap.ui.define([
 					Valor: "",
 					Editable: true
 				},
-				VIN: {
-					Valor: "",
-					Editable: true
-				},
-				OR: {
-					Valor: "",
-					Editable: true
-				},
 				ListaMateriales: {
 					IndiceSiendoEditado: -1,
 					ValorPorAgregar:{
@@ -365,10 +357,6 @@ sap.ui.define([
 				});
 			}else if(pedido.ListaMateriales.Valor.length == 0) {
 				MessageBox.warning("Se debe cargar al menos un material para continuar.", {
-					title: "Advertencia"
-				});
-			} else if(pedido.VIN.Valor && pedido.VIN.Valor.trim().length < 17) {
-				MessageBox.warning("El VIN debe contar con 17 caracteres.", {
 					title: "Advertencia"
 				});
 			} else {
