@@ -1,507 +1,520 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
-	"sap/m/MessageToast",
-	"jquery.sap.global",
 	'sap/ui/core/Fragment',
 	'sap/ui/model/Filter',
-	"sap/m/Button",
-	"sap/m/Dialog",
-	"sap/m/Text",
+	"sap/ui/model/FilterOperator",
 	"sap/m/MessageBox",
+	"AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO/js/Dialogs/ValueHelpDialogMateriales",
+	"AR_DP_REP_PEDIDO_EXPO/AR_DP_REP_PEDIDO_EXPO/js/Utils",
 	"../utils/ValueHelp"
-], function (Controller, MessageToast, global, Fragment, Filter, Button, Dialog, Text, MessageBox,ValueHelp) {
+], function (Controller, Fragment, Filter, FilterOperator, MessageBox, ValueHelpDialogMateriales, Utils,ValueHelp) {
 	"use strict";
-	var oView, oSAPuser, t, Button, Dialog, oSelectedItem, data, arrjson, Respuesta, a, b, c, codsucursal, selectaut, cantorg = [],
-		flagperfil = true;
-	var mnext = [],
-		msext = [];
+	
+	let that;
 	return Controller.extend("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.controller.CrearPedidoUrgente", {
+		
 		onInit: function () {
+			that = this; //test
+			
 			jQuery.sap.require("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.js.jszip");
 			jQuery.sap.require("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.js.xlsx");
-
+			this.getView().addStyleClass(this.getOwnerComponent().getContentDensityClass());//TODO Revisar la necesidad de esta linea
+			
 			this._localModel = this.getOwnerComponent().getModel();
 			this._oDataHanaModel = this.getOwnerComponent().getModel("ODataHana");
-
-			var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+			
+			let oRouter = sap.ui.core.UIComponent.getRouterFor(this);
 			oRouter.getRoute("urgente").attachMatched(this._onRouteMatched, this);
-			//	this.limpieza();
-			t = this;
-			oView = this.getView();
-			this.getView().addStyleClass(this.getOwnerComponent().getContentDensityClass());
-            var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
+		},
+		_onRouteMatched: function(){
+			let fromRoute = sap.ui.core.routing.History.getInstance().getPreviousHash();
+			if(!fromRoute || fromRoute == "menuprincipal"){
+				this.setModelInitialData();
+				this.setBusyDialog(true);
+				
+				let dfdUserRoleCheck = $.Deferred();
+				let dfdCurrentUserIASData = Utils.loadCurrentUserIASData();
+				let dfdIsCurrentUserANissanUser = Utils.isCurrentUserANissanUser();
+				let dfdSolicitantes = this.loadSolicitantes();
+				// this.loadMateriales(true);
+				
+				$.when(dfdCurrentUserIASData, dfdIsCurrentUserANissanUser).then(function(currentUserDataIAS, isNissanUser){
+					if(!isNissanUser){
+						that.setUserAsSolicitante(currentUserDataIAS);
+						that._localModel.setProperty("/Pedido/Solicitante/Editable", false);
+						
+						that.loadSolicitanteDependantData().then(dfdUserRoleCheck.resolve);
+					}else{
+						dfdUserRoleCheck.resolve();
+					}
+				});
+				
+				$.when(dfdUserRoleCheck, dfdSolicitantes).then(function(){
+					that.setBusyDialog(false)
+				});
+			}
+		},
+		
+		setModelInitialData: function(){
+			this._localModel.setProperty("/Solicitantes", [])
+			this._localModel.setProperty("/Destinatarios", [])
+			this._localModel.setProperty("/Materiales", {})
+			this._localModel.setProperty("/LimiteDeCredito", 0)
+			this._localModel.setProperty("/Pedido", {
+				Solicitante: {
+					Valor: "",
+					Editable: true
+				},
+				PedidoDealer: {
+					Valor: "",
+					Editable: true
+				},
+				Destinatario: {
+					Valor: "",
+					Editable: true
+				},
+				ListaMateriales: {
+					IndiceSiendoEditado: -1,
+					ValorPorAgregar:{
+						Material: "",
+						Cantidad: 0
+					},
+					Valor: [],
+					Editable: true
+				},
+				ListaDestinatarios: {
+					Valor:"",
+					Editable: true
+				}
+			});
+		},
+		loadSolicitanteDependantData: function(){
+			let dfdSolicitanteDependantData = $.Deferred();
+			this.setBusyDialog(true);
+			
+			let solicitante = this._localModel.getProperty("/Pedido/Solicitante/Valor");
+			
+			let dfdDestinatarios = that.loadDestinatarios(solicitante);
+			let dfdLimiteCredito = that.loadLimiteCredito(solicitante);
+			
+			$.when(dfdDestinatarios, dfdLimiteCredito).then(function(){
+				dfdSolicitanteDependantData.resolve();
+				that.setBusyDialog(false);
+			});
+			
+			return dfdSolicitanteDependantData;
+		},
+		loadSolicitantes: function(){
+			let dfdSolicitantes = $.Deferred();
+			this._oDataHanaModel.read("/solicitante", {
+				success: function(datos){
+					that._localModel.setProperty("/Solicitantes", datos.results);
+					
+					dfdSolicitantes.resolve();
+				},
+				error: function(){
+					MessageBox.error("Error al cargar los solicitantes, contacte a soporte.",{
+						title: "Error de comunicación"
+					});
+					
+				}
+			});	
+			
+			return dfdSolicitantes;
+		},
+		loadMateriales: function(force){
+			let objectMateriales = this._localModel.getProperty("/Materiales");
+			
+			if(!objectMateriales.Promesa || force){
+				let dfdMateriales = $.Deferred();
+				this._oDataHanaModel.read("/material", {
+					success: function(datos){
+						that._localModel.setProperty("/Materiales/Valor", datos.results);
+						
+						dfdMateriales.resolve();
+					},
+					error: function(){
+						MessageBox.error("Error al cargar los materiales, contacte a soporte.",{
+							title: "Error de comunicación"
+						});
+					}
+				});	
+				
+				this._localModel.setProperty("/Materiales", {
+					Valor: [],
+					Promesa: dfdMateriales
+				});
+				
+				return dfdMateriales;
+			}else{
+				return objectMateriales.Promesa;
+			}
+		},
+		loadLimiteCredito: function(solicitante){
+			let dfdLimiteCredito = $.Deferred(); 
+			var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
+			var appModulePath = jQuery.sap.getModulePath(appid);
+		
+			let parameters = {
+				"Cliente": solicitante,
+				"Proceso": "R"
+			};
+			
+			this.getToken().then(function(token){
+				
+				$.ajax({
+					type: 'POST',
+					url: appModulePath + '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_CHECK_CREDITO_SRV;v=1/CreditoClienteSet',
+					headers: {
+						"X-CSRF-Token": token
+					},
+					contentType: 'application/json; charset=utf-8',
+					dataType: 'json',
+					data: JSON.stringify(parameters),
+					success: function (dataR, textStatus, jqXHR) {
+						let limiteCredito = dataR.d.Credito;
+						that._localModel.setProperty("/LimiteDeCredito", that.formatLimiteCredito(limiteCredito));
+						
+						dfdLimiteCredito.resolve();
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						MessageBox.error("Error al obtener limite de credito, contacte a soporte.",{
+							title: "Error de comunicación"
+						});
+					}
+				});
+			});
+			
+			
+			return dfdLimiteCredito;
+		},
+		formatLimiteCredito: function(limiteCredito){
+			var regex, m;
+			regex = /(\.\d+)|\B(?=(\d{3})+(?!\d))/g;
+			
+			limiteCredito = Number(limiteCredito);
+			limiteCredito = Math.round(limiteCredito);
+			limiteCredito = limiteCredito.toString();
+			limiteCredito = limiteCredito.replace(regex, ".");
+			
+			return limiteCredito;
+		},
+		setUserAsSolicitante: function(currentUserIASData){
+			if(currentUserIASData["urn:sap:cloud:scim:schemas:extension:custom:2.0:User"]){
+				let atributosUsuario = currentUserIASData["urn:sap:cloud:scim:schemas:extension:custom:2.0:User"].attributes;
+				let codigoSucursal = atributosUsuario.find(attribute => attribute.name == "customAttribute6").value
+				
+				if(codigoSucursal){
+					this._localModel.setProperty("/Pedido/Solicitante/Valor", "0000" + codigoSucursal);
+				}
+			}
+		},
+		loadDestinatarios: function(solicitante){
+			let dfdDestinatarios = $.Deferred();
+			
+			let filters = [];
+			if(solicitante){
+				filters.push(new Filter("SOLICITANTE", FilterOperator.EQ, solicitante));
+			}
+			
+			this._oDataHanaModel.read("/destinatario", {
+				filters: filters,
+				success: function(datos){
+					that._localModel.setProperty("/Destinatarios", datos.results);
+					dfdDestinatarios.resolve();
+				},
+				error: function(){
+					MessageBox.error("Error al cargar los destinatarios, contacte a soporte.",{
+						title: "Error de comunicación"
+					});
+				}
+			});	
+			
+			return dfdDestinatarios;
+		},
+		
+		addOrEditMaterialPedido: function(){
+			let datosListaMaterialesPedido = this._localModel.getProperty("/Pedido/ListaMateriales");
+			let indiceRowSiendoEditada = datosListaMaterialesPedido.IndiceSiendoEditado;
+			let materialAgregar = datosListaMaterialesPedido.ValorPorAgregar;
+			let listaMateriales = datosListaMaterialesPedido.Valor;
+			
+			if(materialAgregar.Material && materialAgregar.Cantidad > 0){
+				if(indiceRowSiendoEditada >= 0){
+					listaMateriales[indiceRowSiendoEditada] = materialAgregar;
+					datosListaMaterialesPedido.IndiceSiendoEditado = -1;
+				}else{
+						listaMateriales.push(materialAgregar);
+				}
+				
+				this._localModel.setProperty("/Pedido/ListaMateriales/ValorPorAgregar", {
+					Material: "",
+					Cantidad: 0
+				});
+			}
+		},
+		editModeMaterialEnPedido: function(oEvent){
+			let contextPathAListaMaterialesRow = oEvent.getSource().getParent().getBindingContextPath();
+			let rowAEditar = this._localModel.getProperty(contextPathAListaMaterialesRow);
+			let indiceRowListaDeMateriales = contextPathAListaMaterialesRow.split("/")[4];
+			
+			this._localModel.setProperty("/Pedido/ListaMateriales/ValorPorAgregar", {
+				Material: rowAEditar.Material,
+				Cantidad: rowAEditar.Cantidad
+			});
+			this._localModel.setProperty("/Pedido/ListaMateriales/IndiceSiendoEditado", indiceRowListaDeMateriales);
+		},
+		deleteMaterialDePedido: function(oEvent){
+			let indiceSiendoEditado = this._localModel.getProperty("/Pedido/ListaMateriales/IndiceSiendoEditado");
+			if(indiceSiendoEditado == -1){
+				let contextPathAListaMaterialesRow = oEvent.getSource().getParent().getBindingContextPath();
+				let indiceRowListaDeMateriales = contextPathAListaMaterialesRow.split("/")[4];
+				
+				let listaMateriales = this._localModel.getProperty("/Pedido/ListaMateriales/Valor");
+				listaMateriales.splice(indiceRowListaDeMateriales, 1);
+				
+				this._localModel.refresh();
+			} else {
+				MessageBox.warning("Debe terminar de editar antes de poder eliminar entradas.",{
+						title: "Advertencia"
+					});
+			}
+		},
+		
+		
+		onSubirArchivo: function (oEvent) {
+			let	file = oEvent.getParameter("files") && oEvent.getParameter("files")[0];
+			let indiceEditandoListaMateriales = this._localModel.getProperty("/Pedido/ListaMateriales/IndiceSiendoEditado");
+			
+			if(indiceEditandoListaMateriales >= 0){
+				MessageBox.warning("Debe terminar de editar antes de subir el archivo con materiales.",{
+					title: "Advertencia"
+				});
+			} else {
+				if (file && window.FileReader) {
+					var reader = new FileReader(),
+						result = {},
+						data;
+					reader.onload = function (e) {
+						data = e.target.result;
+						var wb = XLS.read(data, {
+							type: "binary",
+							cellDates: true,
+							cellStyles: true
+						});
+						
+						wb.SheetNames.forEach(function (sheetName) {
+							wb.Sheets[sheetName].A1.h = "Material";
+							wb.Sheets[sheetName].A1.r = "<t>Material</t>";
+							wb.Sheets[sheetName].A1.v = "Material";
+							wb.Sheets[sheetName].A1.w = "Material";
+		
+							wb.Sheets[sheetName].B1.h = "Cantidad";
+							wb.Sheets[sheetName].B1.r = "<t>Cantidad</t>";
+							wb.Sheets[sheetName].B1.v = "Cantidad";
+							wb.Sheets[sheetName].B1.w = "Cantidad";
+							
+							var rows = XLS.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
+							if (rows.length > 0) {
+								let cantidadMateriales = that.contarMateriales(rows);
+								let listaMateriales = that._localModel.getProperty("/Pedido/ListaMateriales/Valor");
+								
+								for(let numeroMaterial in cantidadMateriales){
+									if (cantidadMateriales.hasOwnProperty(numeroMaterial)) {
+										listaMateriales.push({
+											Material: numeroMaterial,
+											Cantidad: cantidadMateriales[numeroMaterial]
+										});
+									}
+								}
+								
+								that._localModel.refresh();
+							}
+						});
+					};
+					
+					reader.readAsBinaryString(file);
+				}
+			}
+		},
+		contarMateriales: function (rows) {
+			let cantidadMateriales = {};
+			
+			for(let row of rows){
+				cantidadMateriales[row.Material] = cantidadMateriales[row.Material] ? cantidadMateriales[row.Material] : 0;
+				cantidadMateriales[row.Material] += parseInt(row.Cantidad, 10);
+			}
+			
+			return cantidadMateriales;
+		},
+		
+		validarCamposPreVerificarStock: function(){
+			let pedido = that._localModel.getProperty("/Pedido");
+
+			if (!pedido.Solicitante.Valor || !pedido.PedidoDealer.Valor || !pedido.Destinatario.Valor) {
+				MessageBox.warning("Los campos Solicitante, Pedido Dealer y Destinatario deben ser completados para continuar.", {
+					title: "Advertencia"
+				});
+			}else if(pedido.ListaMateriales.Valor.length == 0) {
+				MessageBox.warning("Se debe cargar al menos un material para continuar.", {
+					title: "Advertencia"
+				});
+			} else {
+				this.verificarStock(pedido.Solicitante.Valor);
+			}
+		},
+		verificarStock: function(solicitante){
+			let listaMaterialesFormateada = this.getListaMaterialesFormateada(solicitante);
+			
+			if(listaMaterialesFormateada.length == 0){
+				MessageBox.error("Los materiales ingresados no son validos.");
+				return;
+			}
+			
+			this.popCarga();
+			
+			let parameters = JSON.stringify({
+				"Cliente": "",
+				"Nav_Header_Stock_2": listaMaterialesFormateada
+			});
+			
+			this.getToken().then(function(token){
+                var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
+               var appModulePath = jQuery.sap.getModulePath(appid);
+				$.ajax({
+					type: 'POST',
+					url:appModulePath + '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_4_SRV;v=1/HeaderSet',
+					headers: {
+						"X-CSRF-Token": token
+					},
+					contentType: 'application/json; charset=utf-8',
+					dataType: 'json',
+					data: parameters,
+					timeout: 360000,
+					success: function (dataR, textStatus, jqXHR) {
+						let respuestaSolicitudAStock = dataR.d.Nav_Header_Stock_2.results;
+						that._localModel.setProperty("/RespuestaSolicitudAStock", respuestaSolicitudAStock)
+						that.cerrarPopCarga();
+						that.navToVerificadoUrgente();
+					},
+					error: function (jqXHR, textStatus, errorThrown) {
+						MessageBox.error("Error al verificar el stock, vuelva intentar. \n Si luego de varios intentos el error persiste, contacte a soporte..",{
+							title: "Error de comunicación"
+						});
+						that.cerrarPopCarga();
+					}
+				});
+			});
+		},
+		getToken: function () {
+			let dfdToken = $.Deferred();
+			var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
   var appModulePath = jQuery.sap.getModulePath(appid);
 			$.ajax({
 				type: 'GET',
-                dataType:"json",
-				url:appModulePath +  "/services/userapi/currentUser",
-				success: function (dataR, textStatus, jqXHR) {
-					oSAPuser = dataR.name;
-
-					t.leerUsuario(oSAPuser);
+				url: appModulePath + '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_CHECK_CREDITO_SRV;v=1',
+				headers: {
+					"X-CSRF-Token": "Fetch"
 				},
-				error: function (jqXHR, textStatus, errorThrown) {}
-			});
-			// t.leerUsuario(oSAPuser);
-			//t.ConsultaOdata2();
-			t.ConsultaOdata3();
-
-			t.ConsultaMaterial();
-
-		},
-		//funciones de logica
-
-		leerUsuario: function (oSAPuser) {
-            var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-            var appModulePath = jQuery.sap.getModulePath(appid);
-			var url = appModulePath + '/destinations/IDP_Nissan/service/scim/Users/' + oSAPuser;
-			//Consulta
-			$.ajax({
-				type: 'GET',
-				url: url,
 				contentType: 'application/json; charset=utf-8',
 				dataType: 'json',
-				async: false,
 				success: function (dataR, textStatus, jqXHR) {
-					if (dataR["urn:sap:cloud:scim:schemas:extension:custom:2.0:User"] === undefined) {
-						var custom = "";
-					} else {
-						var custom = dataR["urn:sap:cloud:scim:schemas:extension:custom:2.0:User"].attributes;
-					}
-					for (var i = 0; i < dataR.groups.length; i++) {
-
-						if (dataR.groups[i].value === "AR_DP_ADMINISTRADORDEALER" || dataR.groups[i].value === "AR_DP_USUARIODEALER") {
-							flagperfil = false;
-							for (var x = 0; x < custom.length; x++) {
-								if (custom[x].name === "customAttribute6") {
-									codsucursal = "0000" + custom[x].value;
-								}
-							}
-						}
-					}
-					//console.log(flagperfil);
-					if (!flagperfil) {
-						// codsucursal =codsucursal;
-						oView.byId("cmbcliente").setSelectedKey(codsucursal);
-						oView.byId("cmbcliente").setEditable(false);
-						selectaut = true;
-						t.ConsultaOdata3();
-						t.ConsultaOdata4();
-						t.Destinatario();
-						//console.log("0000" + codsucursal);
-					} else {
-						oView.byId("cmbcliente").setEditable(true);
-					}
-
+					dfdToken.resolve(jqXHR.getResponseHeader('X-CSRF-Token'))
 				},
 				error: function (jqXHR, textStatus, errorThrown) {
-
+					dfdToken.resolve(jqXHR.getResponseHeader('X-CSRF-Token'))
 				}
 			});
-
+			
+			return dfdToken;
 		},
-		onSubirArchivo: function (oEvent) {
-			var oThis = this,
-				file = oEvent.getParameter("files") && oEvent.getParameter("files")[0];
-			//sap.ui.core.BusyIndicator.show(0);
-			if (file && window.FileReader) {
-				var reader = new FileReader(),
-					result = {},
-					data;
-				reader.onload = function (e) {
-					data = e.target.result;
-					var wb = XLS.read(data, {
-						type: "binary",
-						cellDates: true,
-						cellStyles: true
-					});
-					wb.Sheets[wb.SheetNames[0]].A1.h = "material";
-					wb.Sheets[wb.SheetNames[0]].A1.r = "<t>material</t>";
-					wb.Sheets[wb.SheetNames[0]].A1.v = "material";
-					wb.Sheets[wb.SheetNames[0]].A1.w = "material";
-
-					//console.log(wb.Sheets[wb.SheetNames[0]].B1);
-					wb.Sheets[wb.SheetNames[0]].B1.h = "cantidad";
-					wb.Sheets[wb.SheetNames[0]].B1.r = "<t>cantidad</t>";
-					wb.Sheets[wb.SheetNames[0]].B1.v = "cantidad";
-					wb.Sheets[wb.SheetNames[0]].B1.w = "cantidad";
-					wb.SheetNames.forEach(function (sheetName) {
-						var roa = XLS.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
-						if (roa.length > 0) {
-							result[sheetName] = roa;
-							// var oSelModel = this.getOwnerComponent().getModel("selectedValues"),
-							// 	data = {
-							// 		nombre: wb.SheetNames[0]
-							// 	};
-							//console.log(roa);
-							t.suma(roa);
-							//console.log("oooo");
+		
+		getListaMaterialesFormateada: function(solicitante){
+			let materiales = this._localModel.getProperty("/Materiales/Valor");
+			let listaMaterialesSeleccionados = this._localModel.getProperty("/Pedido/ListaMateriales/Valor");
+			let cantidadesMateriales = this.contarMateriales(listaMaterialesSeleccionados);
+			
+			let listaMaterialesFormateada = [];
+			let datosMaterialesSeleccionados = {};
+			
+			for(let numeroMaterial in cantidadesMateriales){
+				if (cantidadesMateriales.hasOwnProperty(numeroMaterial)) {
+					let cantidadMaterial = cantidadesMateriales[numeroMaterial];
+					let datosMaterial = materiales.find(material => material.MATERIAL == numeroMaterial);
+					if(datosMaterial){
+						let cantidadMinima = datosMaterial.CANTMIN;
+						let multiploDeVenta = datosMaterial.MVENTA;
+						
+						datosMaterialesSeleccionados[numeroMaterial] = {...datosMaterial, CantPedAjustado: false};
+						
+						if(cantidadMaterial < cantidadMinima){
+							cantidadMaterial = cantidadMinima;
+							
+							datosMaterialesSeleccionados[numeroMaterial].CantPedAjustado = true;
+						} else if(multiploDeVenta != 0){
+							//cantidad = multiplo de multiploDeVenta inmediatamente superior a cantidadMaterial
+							//para esto obtengo el resto de dividirlo entre multiploDeVenta (diferenciaHastaMultiplo)
+							//si diferenciaHastaMultiplo es cero entonces cantidadMaterial ya es multiplo
+							//sino le sumo lo necesario para que alcance el multiplo mayor mas inmediato (multiplodeVenta - diferenciaHastaMultiplo)
+							let diferenciaHastaMultiplo = cantidadMaterial % multiploDeVenta;
+							cantidadMaterial += diferenciaHastaMultiplo !== 0 ? multiploDeVenta - diferenciaHastaMultiplo : 0;
+							
+							datosMaterialesSeleccionados[numeroMaterial].CantPedAjustado = true;
 						}
-					}.bind(this));
-				}.bind(this);
-				reader.readAsBinaryString(file);
-			}
-
-		},
-		suma: function (roa) {
-
-			var result = [],
-				flagT = true, //****
-				cantidadT = 0,
-				resultT = []; //***
-			var json2 = roa; //**linea 73
-
-			//	este for
-			for (var i = 0; i < json2.length; i++) {
-				for (var j = 0; j < resultT.length; j++) {
-					if (json2[i].material.toString().toUpperCase() === resultT[j].material) {
-						flagT = false;
-						j = resultT.length + 1;
+						
 					}
-				}
-				if (flagT) {
-					var arrn = {
-						"material": json2[i].material.toString().toUpperCase(),
-						"cantidad": json2[i].cantidad,
-						// "__rowNum__": json2[i].__rowNum__
-					};
-					resultT.push(arrn);
-				}
-				flagT = true;
-			}
-
-			//cantorg =[];
-			for (var i = 0; i < resultT.length; i++) {
-				cantidadT = 0;
-				for (var j = 0; j < json2.length; j++) {
-					if (json2[j].material.toString().toUpperCase() === resultT[i].material) {
-						cantidadT = cantidadT + parseInt(json2[j].cantidad, 10);
-					}
-
-				}
-
-				var arrnT = {
-					"material": resultT[i].material.toString().toUpperCase(),
-					"cantidad": cantidadT,
-					// "__rowNum__": resultT[i].__rowNum__
-
-				};
-
-				cantorg.push(arrnT);
-
-			}
-			var data = new sap.ui.model.json.JSONModel(cantorg);
-			t.getView().setModel(data, "listadoMateriales");
-		},
-
-		cargaTabla: function (obj) {
-			var r = obj.sort(function (a, b) {
-				var x = a.LOGIN;
-				var y = b.LOGIN;
-				if (x < y) {
-					return -1;
-				}
-				if (x > y) {
-					return 1;
-				}
-				return 0;
-			});
-			data = new sap.ui.model.json.JSONModel(r);
-			t.getView().setModel(data, "listadoMateriales");
-		},
-
-		Editar: function (oEvent) {
-			oSelectedItem = oEvent.getSource().getParent();
-			var mate = oSelectedItem.getBindingContext("listadoMateriales").getProperty("material");
-			var cant = oSelectedItem.getBindingContext("listadoMateriales").getProperty("cantidad");
-			oView.byId("material").setValue(mate);
-			oView.byId("Cantidad").setValue(cant);
-
-		},
-		Editar2: function (oEvent) {
-			oView.getModel("listadoMateriales").setProperty("cantidad", oView.byId("Cantidad").getValue(), oSelectedItem.getBindingContext(
-				"listadoMateriales"));
-			oView.getModel("listadoMateriales").setProperty("material", oView.byId("material").getValue(), oSelectedItem.getBindingContext(
-				"listadoMateriales"));
-			oSelectedItem = undefined;
-		},
-
-		onSave: function () {
-			var cant = oView.byId("Cantidad").getValue();
-			var mat = oView.byId("material").getValue();
-
-			var arryT = [];
-			if (oView.getModel("listadoMateriales") === undefined) {
-				cantorg.push({
-					material: mat,
-					cantidad: cant,
-				});
-				var dataT = new sap.ui.model.json.JSONModel([{
-					material: mat,
-					cantidad: cant,
-				}]);
-				oView.setModel(dataT, "listadoMateriales");
-				//	t.GenerarJson();
-
-			} else {
-
-				var oBinding = oView.getModel("listadoMateriales"); //oList.getBinding("listadoMateriales"),
-				arryT = oBinding.oData;
-				arryT.push({
-					material: mat,
-					cantidad: cant,
-				});
-				var dataT = new sap.ui.model.json.JSONModel(arryT);
-				oView.setModel(dataT, "listadoMateriales");
-				//	t.GenerarJson();
-			}
-			return (arryT);
-
-		},
-		camino: function () {
-			if (oView.byId("material").getValue() !== "" && oView.byId("Cantidad").getValue() !== "") {
-				if (oSelectedItem === undefined) {
-					t.onSave();
-				} else {
-					t.Editar2();
-				}
-
-				oView.byId("Cantidad").setValue();
-				oView.byId("material").setValue();
-			}
-
-		},
-		handleDelete: function (oEvent) {
-			var arryT = [];
-			oSelectedItem = oEvent.getSource().getParent();
-			var deleteT = oSelectedItem.oBindingContexts.listadoMateriales.sPath.replace(/\//g, "");
-			//oSelectedItem.sId.toString().substring(oSelectedItem.sId.length - 1, oSelectedItem.sId.length);
-
-			for (var i = 0; i < oView.getModel("listadoMateriales").oData.length; i++) {
-				if (i.toString() !== deleteT) {
-					arryT.push({
-						cantidad: oView.getModel("listadoMateriales").oData[i].cantidad,
-						material: oView.getModel("listadoMateriales").oData[i].material
+					
+					listaMaterialesFormateada.push({
+						"Material": numeroMaterial,
+						"Cliente": solicitante,
+						"CantPed": cantidadMaterial.toString()
 					});
 				}
 			}
-			var dataT = new sap.ui.model.json.JSONModel(arryT);
-			oView.setModel(dataT, "listadoMateriales");
-			oSelectedItem = undefined;
+			
+			this._localModel.setProperty("/Pedido/ListaMateriales/DatosMaterialesSeleccionados", datosMaterialesSeleccionados);
+			
+			return listaMaterialesFormateada;
 		},
-		validacantidadm: function () {
-			var arr = [];
-			if (oView.byId("Cantidad").getValue() < 1 && oView.byId("Cantidad").getValue() !== "") {
-				var obj = {
-					codigo: "01",
-					descripcion: "Numero debe ser mayor a 0 "
-				};
-				arr.push(obj);
-				t.popError(arr, "Ingreso Cantidad");
-				oView.byId("Cantidad").setValue();
-			}
-
+		
+		navToVerificadoUrgente: function(){
+			var oRouter = this.getOwnerComponent().getRouter();
+			oRouter.navTo("VerificadoUrgente");
 		},
-		validacampos: function () {
-			//console.log(oView.getModel("listadoMateriales"));
-			var arr = [];
-			if (oView.byId("cmbcliente").getValue() === "" || oView.byId("Pdealer").getValue() === "" || oView.byId("interlocutor").getValue() ===
-				"") {
-				var obj = {
-					codigo: "01",
-					descripcion: "Los campos DEALER  ,N° PEDIDO o DIRECCIÓN No pueden ser vacios "
-				};
-				arr.push(obj);
-
-				t.popError(arr, "Ingreso Cantidad");
-				oView.byId("Cantidad").setValue();
-
-			} else if (oView.getModel("listadoMateriales") === undefined || oView.getModel("listadoMateriales").oData.length === 0) {
-				var obj = {
-					codigo: "02",
-					descripcion: "Debe cargar al menos un material"
-				};
-				arr.push(obj);
-
-				t.popError(arr, "Ingreso Valores Válidos ");
-			} else {
-				t.ConsultaStock();
-			}
-
-		},
-		popError: function (obj, titulo) {
-
-			// obj.push({
-			// 	codigo: "01",
-			// 	descripcion: "Cantidad debe ser mayor a 0"
-			// })
-
-			var log = new sap.ui.model.json.JSONModel(obj);
-			oView.setModel(log, "error");
-			var oDialog = oView.byId("dialogError");
+		
+		popCarga: function () {
+			var oDialog = this.getView().byId("indicadorCarga");
 			// create dialog lazily
 			if (!oDialog) {
 				// create dialog via fragment factory
-				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.Error", this);
-				oView.addDependent(oDialog);
+				oDialog = sap.ui.xmlfragment(that.getView().getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.PopUp", this);
+				that.getView().addDependent(oDialog);
 			}
-			oView.byId("dialogError").addStyleClass(this.getOwnerComponent().getContentDensityClass());
 			oDialog.open();
-			oView.byId("dialogError").setTitle("Error: " + titulo);
-			oView.byId("dialogError").setState("Error");
 		},
-		cerrarPopError: function () {
-			oView.byId("dialogError").close();
-			// if (oDialogSeguros === true) {
-			// 	t.popSeguro1();
-			// }
+		cerrarPopCarga: function () {
+			this.getView().byId("indicadorCarga").close();
 		},
-		jsoncreacion: function (a, b, c, d, e) {
-			oView.byId("cmbcliente").setSelectedKey(a);
-			oView.byId("Pdealer").setValue(b);
-			oView.byId("interlocutor").setSelectedKey(c);
-			var dataT = new sap.ui.model.json.JSONModel(d);
-			oView.setModel(dataT, "listadoMateriales");
-			oSAPuser = e;
-			// //console.log(cliente + "," + pedido + "," + destino, datos);
+		
+		navBack: function () {
+			var oRouter = sap.ui.core.UIComponent.getRouterFor(this);
+			oRouter.navTo("menuprincipal");
 		},
-		ConsultaOdata2: function () {
-            var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-            var appModulePath = jQuery.sap.getModulePath(appid);
-			var region =appModulePath + '/destinations/AR_DP_REP_DEST_HANA/ODATA_masterPedido.xsodata';
-			//console.log(region);
-			//Consulta
-			$.ajax({
-				type: 'GET',
-				url: region,
-				contentType: 'application/json; charset=utf-8',
-				dataType: 'json',
-				async: true,
-				success: function (dataR, textStatus, jqXHR) {
-
-					//console.log(dataR);
-				},
-				error: function (jqXHR, textStatus, errorThrown) {
-					//console.log(JSON.stringify(jqXHR));
-				}
-			});
-		},
-
-		ConsultaOdata3: function () {
-            var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-  var appModulePath = jQuery.sap.getModulePath(appid);
-			var region = appModulePath + '/destinations/AR_DP_REP_DEST_HANA/ODATA_masterPedido.xsodata/solicitante';
-			//console.log(region);
-			//Consulta
-			$.ajax({
-				type: 'GET',
-				url: region,
-				contentType: 'application/json; charset=utf-8',
-				dataType: 'json',
-				async: true,
-				success: function (dataR, textStatus, jqXHR) {
-					//console.log("cliente");
-					//console.log(dataR);
-					var cliente = new sap.ui.model.json.JSONModel(dataR.d.results);
-
-					oView.setModel(cliente, "cliente");
-				},
-				error: function (jqXHR, textStatus, errorThrown) {
-					//console.log(JSON.stringify(jqXHR));
-				}
-			});
-		},
-		ConsultaOdata4: function () {
-			var key = '%27' + oView.byId("cmbcliente").getSelectedKey() + '%27';
-			var region = '/destinations/AR_DP_REP_DEST_HANA/ODATA_masterPedido.xsodata/destinatario?$filter=SOLICITANTE%20eq%20';
-			var url = region + key;
-            var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-  var appModulePath = jQuery.sap.getModulePath(appid);
-			//console.log(region);
-			//Consulta
-			$.ajax({
-				type: 'GET',
-				url:appModulePath + url,
-				contentType: 'application/json; charset=utf-8',
-				dataType: 'json',
-				async: true,
-				success: function (dataR, textStatus, jqXHR) {
-					//console.log("interlocutor");
-					//console.log(dataR.d.results);
-					var interlocutor = new sap.ui.model.json.JSONModel(dataR.d.results);
-
-					oView.setModel(interlocutor, "interlocutor");
-				},
-				error: function (jqXHR, textStatus, errorThrown) {
-					//console.log(JSON.stringify(jqXHR));
-				}
-			});
-		},
-
-		validarcant: function () {
-			if (oView.byId("Products").getValue().toString().length >= 4) {
-				t.ConsultaMaterial();
-			}
-
-		},
-		ConsultaMaterial: function () {
-			//	var key = oView.getDependents()[0]._searchField.getValue();
-
-			//$filter=startswith(SKUNumber,%2787840%27)
-            var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-  var appModulePath = jQuery.sap.getModulePath(appid);
-			var material = appModulePath + '/destinations/AR_DP_REP_DEST_HANA/ODATA_masterPedido.xsodata/material?$top=600';
-
-			// ?$filter=startswith(MATERIAL,%27'+ key +%27)';
-
-			//Consulta
-			$.ajax({
-				type: 'GET',
-				url: material,
-				contentType: 'application/json; charset=utf-8',
-				dataType: 'json',
-				async: true,
-				success: function (dataR, textStatus, jqXHR) {
-
-					var material = new sap.ui.model.json.JSONModel(dataR.d.results);
-					oView.setModel(material, "material");
-				},
-				error: function (jqXHR, textStatus, errorThrown) {
-					//console.log(JSON.stringify(jqXHR));
-				}
-			});
-		},
-		ConsultaMaterial2: function () {
-            var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-            var appModulePath = jQuery.sap.getModulePath(appid);
-			var key = oView.getDependents()[0]._searchField.getValue().toUpperCase();
-			oView.getDependents()[0]._searchField.setValue(key)
-			var material = '/destinations/AR_DP_REP_DEST_HANA/ODATA_masterPedido.xsodata/material?$top=600&$filter=startswith(MATERIAL,%27' + key +
-				'%27)';
-
-			//Consulta
-			$.ajax({
-				type: 'GET',
-				url:appModulePath +  material,
-				contentType: 'application/json; charset=utf-8',
-				dataType: 'json',
-				async: true,
-				success: function (dataR, textStatus, jqXHR) {
-					//console.log(dataR);
-					var material = new sap.ui.model.json.JSONModel(dataR.d.results);
-					oView.setModel(material, "material");
-				},
-				error: function (jqXHR, textStatus, errorThrown) {
-					//console.log(JSON.stringify(jqXHR));
-				}
-			});
-		},
-		mayuscula: function (oEvent) {
-			var txt = oEvent.getSource();
-			txt.setValue(txt.getValue().toUpperCase());
-
+		
+		setBusyDialog: function(value){
+			this._activeBusyDialogs = this._activeBusyDialogs ? this._activeBusyDialogs : 0;
+			this._activeBusyDialogs += value ? 1 : -1;
+			this.getView().setBusy(this._activeBusyDialogs != 0);
 		},
 		handleMaterialesValueHelp: function(oEvent){
+			// let dfdMateriales = this.loadMateriales();
+			
+			// this.setBusyDialog(true);
+			// $.when(dfdMateriales).then(function(){
+			// 	ValueHelpDialogMateriales.open(that.getView(), false);
+			// 	that.setBusyDialog(false);
+			// });
+			
 			var oProps = {
 				oControl: oEvent.getSource(),
 				oModel: this._oDataHanaModel,
@@ -528,356 +541,9 @@ sap.ui.define([
 			var oVH = new ValueHelp( oProps );
 			oVH.open()
 		},
-		handleValueHelp: function (oEvent) {
-			var sInputValue = oEvent.getSource().getValue();
-
-			this.inputId = oEvent.getSource().getId();
-			// create value help dialog
-			if (!this._valueHelpDialog) {
-				this._valueHelpDialog = sap.ui.xmlfragment("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.DialogV",
-					this
-				);
-				this.getView().addDependent(this._valueHelpDialog);
-			}
-
-			this._valueHelpDialog.open(sInputValue);
-		},
-
-		_handleValueHelpSearch: function (evt) {
-			var sValue = evt.getParameter("value");
-			var oFilter = new Filter(
-				"Name",
-				sap.ui.model.FilterOperator.Contains, sValue
-			);
-			evt.getSource().getBinding("items").filter([oFilter]);
-		},
-
-		_handleValueHelpClose: function (evt) {
-			var oSelectedItem = evt.getParameter("selectedItem");
-			if (oSelectedItem) {
-				var productInput = this.byId(this.inputId);
-				productInput.setValue(oSelectedItem.getTitle());
-			}
-			evt.getSource().getBinding("items").filter([]);
-		},
-
-		Destinatario: function (id) {
-			var regex, m;
-			regex = /(\.\d+)|\B(?=(\d{3})+(?!\d))/g;
-			if (id !== null) {
-				var json = {
-					"CreditoClienteSet": {
-						"CreditoCliente": {
-							"Cliente": oView.byId("cmbcliente").getSelectedKey(),
-								"Proceso": "R"
-						}
-					}
-				};
-				//Consulta
-				//AR_DP_DEST_CPI
-				//AR_DP_DEST_ODATA  principal propagetion
-                var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-  var appModulePath = jQuery.sap.getModulePath(appid);
-				$.ajax({
-					type: 'POST',
-					url: appModulePath + '/destinations/AR_DP_DEST_CPI/http/AR/DealerPortal/Pedido/LimiteCredito',
-					contentType: 'application/json; charset=utf-8',
-					dataType: 'json',
-					async: true,
-					data: JSON.stringify(json),
-					success: function (dataR, textStatus, jqXHR) {
-						t.ConsultaOdata4();
-						var tcredito = 0;
-						tcredito = Number(dataR.CreditoClienteSet.CreditoCliente.Credito);
-						m = Math.round(tcredito);
-						m = m.toString();
-						m = m.replace(regex, ".");
-
-						oView.byId("labelcredito").setText("Límite de Crédito : $" + m);
-					},
-					error: function (jqXHR, textStatus, errorThrown) {
-						var arr = [];
-						//console.log(JSON.stringify(jqXHR));
-						var obj = {
-							codigo: "01",
-							descripcion: "Existe un problema de comunicación favor contactar a soporte "
-						};
-						arr.push(obj);
-						t.popError(arr, "Error");
-					}
-				});
-			}
-		},
-		isExist: function (mat, cant) {
-            var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-  var appModulePath = jQuery.sap.getModulePath(appid);
-			var material = '/destinations/AR_DP_REP_DEST_HANA/ODATA_masterPedido.xsodata/material?$top=600&$filter=startswith(MATERIAL,%27' + mat +
-				'%27)',
-				cantT = cant;
-			//Consulta
-			$.ajax({
-				type: 'GET',
-				url:appModulePath + material,
-				contentType: 'application/json; charset=utf-8',
-				dataType: 'json',
-				async: false,
-				success: function (dataR, textStatus, jqXHR) {
-					// //console.log(dataR);
-					if (dataR.d.results.length !== 0) {
-						if (parseInt(cant, 10) < parseInt(dataR.d.results[0].CANTMIN, 10)) {
-
-							cantT = (dataR.d.results[0].CANTMIN);
-						} else if (parseInt(cant, 10) > parseInt(dataR.d.results[0].CANTMIN, 10)) {
-							for (var i = 0; i < cant; i++) {
-								if (dataR.d.results[0].MVENTA * i < cant) {
-									// //console.log(multiplo * i);
-								} else {
-									cantT = dataR.d.results[0].MVENTA * i;
-									i = cant + 1;
-								}
-							}
-						}
-					} else {
-						cantT = -2;
-					}
-				},
-				error: function (jqXHR, textStatus, errorThrown) {
-					//console.log(JSON.stringify(jqXHR));
-				}
-			});
-			return cantT;
-		},
-		ConsultaStock: function () {
-			t.popCarga();
-			var result = [],
-				flagT = true, //****
-				cantidadT = 0,
-				resultT = []; //***
-			var json2 = oView.getModel("listadoMateriales").oData; //**linea 73
-			//INICIO
-			//Totalizar lineas y cantidades 
-			//antes de virificar disponibilidad y existenciar
-			for (var i = 0; i < json2.length; i++) {
-				for (var j = 0; j < resultT.length; j++) {
-					if (json2[i].material === resultT[j].material) {
-						flagT = false;
-						j = resultT.length + 1;
-					}
-				}
-				if (flagT) {
-					var arrn = {
-						"material": json2[i].material,
-						"cliente": "",
-						"cantPed": json2[i].cantidad
-					};
-					resultT.push(arrn);
-				}
-				flagT = true;
-			}
-			console.log(resultT);
-			//***hasta aqui
-			//totalizar******
-
-			for (var i = 0; i < resultT.length; i++) {
-				cantidadT = 0;
-				var cant = 0;
-				for (var j = 0; j < json2.length; j++) {
-					if (json2[j].material === resultT[i].material) {
-						cantidadT = cantidadT + parseInt(json2[j].cantidad, 10);
-						cant = cant + 1;
-					}
-
-				}
-
-				var arrnT = {
-					"Material": resultT[i].material,
-					"Cliente": "",
-					"CantPed": cantidadT,
-					"cant": cant
-
-				};
-				cantorg.push(arrnT);
-				console.log(cantorg);
-				//desde aqui
-				if (t.isExist(resultT[i].material, cantidadT) !== -2) {
-					var arrnTn = {
-						"Material": resultT[i].material,
-						"Cliente": "",
-						"CantPed": t.isExist(resultT[i].material, cantidadT)
-					};
-					result.push(arrnTn);
-				}
-
-			}
-			console.log(result);
-			if (result.length === 0) {
-				var arrnTn = {
-					"Material": "",
-					"Cliente": "",
-					"CantPed": ""
-				};
-				result.push(arrnTn);
-			}
-			//hasta aqui
-
-			///********************fin totalizar *****************
-			//FIN
-			console.log(result);
-			var json = {
-				"HeaderSet": {
-					"Header": {
-						"Cliente": "",
-						"Nav_Header_Stock_2": {
-							"Stock": result
-						}
-					}
-
-				}
-			};
-			// var json = {
-			// 	"root": {
-			// 		"stock": result
-			// 	}
-			// };
-
-			arrjson = JSON.stringify(json);
-			console.log(arrjson);
-			var url = '/destinations/AR_DP_DEST_CPI/http/AR/DealerPortal/Pedido/VerificarStock';
-            var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-            var appModulePath = jQuery.sap.getModulePath(appid);
-			$.ajax({
-				type: 'POST',
-				url:appModulePath + url,
-				contentType: 'application/json; charset=utf-8',
-				dataType: 'json',
-				async: true,
-				data: arrjson,
-				timeout: 180000,
-				success: function (dataR, textStatus, jqXHR) {
-					t.cerrarPopCarga2();
-					console.warn(dataR);
-					Respuesta = dataR;
-					t.Verificado();
-					//	t.GenerarVerificado(dataR);
-
-				},
-				error: function (jqXHR, textStatus, errorThrown) {
-					t.cerrarPopCarga2();
-					var arr = [];
-					console.log(JSON.stringify(jqXHR));
-					var obj = {
-						codigo: "01",
-						descripcion: "Existe un problema de comunicación favor contactar a soporte "
-					};
-					arr.push(obj);
-					t.popError(arr, "Error");
-				}
-
-			});
-
-		},
-		goToNewView: function () {
-
-			var oDialog = oView.byId("app");
-			// create dialog lazily
-
-			// create dialog via fragment factory
-			oDialog = sap.ui.xmlview(oView.getId(), "AR_DP_REP_EDIDO.AR_DP_REP_PEDIDO_EXPO.view.LaunchPadPedido", this);
-			oView.addDependent(oDialog);
-
-			oDialog.open();
-
-		},
-		atras: function () {
-			var oRouter =
-				sap.ui.core.UIComponent.getRouterFor(this);
-			oRouter.navTo("menuprincipal");
-			t.limpieza();
-		},
-		onNavBack: function () {
-			history.go(-1);
-		},
-
-		Verificado: function () {
-			var ID_SOLICITANTE = oSAPuser;
-			var a = oView.byId("cmbcliente").getSelectedKey();
-			var b = oView.byId("Pdealer").getValue();
-			var c = oView.byId("interlocutor").getSelectedKey();
-			var d = oView.getModel("listadoMateriales").oData;
-			var e = cantorg;
-			var f = flagperfil;
-			console.log(cantorg);
-			console.log(oView.getModel("listadoMateriales").oData);
-			sap.ui.controller("AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.controller.VerificadoUrgente").jsoncreacion(ID_SOLICITANTE, a, b, c, d, e, f);
-			// var oRouter =
-			// 	sap.ui.core.UIComponent.getRouterFor(this);
-			var oRouter = this.getOwnerComponent().getRouter();
-			oRouter.navTo("VerificadoUrgente", {
-				data: JSON.stringify(Respuesta)
-			});
-			this.limpieza();
-
-		},
-		//popUp tipo 1 
-		popCarga: function () {
-
-			var oDialog = oView.byId("indicadorCarga");
-			// create dialog lazily
-			if (!oDialog) {
-				// create dialog via fragment factory
-				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.PopUp", this);
-				oView.addDependent(oDialog);
-			}
-			oDialog.open();
-			//	oView.byId("textCarga").setText(titulo);
-		},
-		cerrarPopCarga2: function () {
-			oView.byId("indicadorCarga").close();
-		},
-		popformulario: function () {
-			var oDialog = oView.byId("Formulario");
-
-			// create dialog lazily
-			if (!oDialog) {
-				// create dialog via fragment factory
-				oDialog = sap.ui.xmlfragment(oView.getId(), "AR_DP_REP_PEDIDO_EXPO.AR_DP_REP_PEDIDO_EXPO.view.formulario", this);
-				oView.addDependent(oDialog);
-				this.getView().byId("Formulario").addStyleClass(this.getOwnerComponent().getContentDensityClass());
-			}
-			oView.byId("tPago");
-			oDialog.open();
-		},
-		aceptarDialogPago: function () {
-			this.getView().byId("Formulario").close();
-		},
-		onCloseDialogPago: function () {
-
-			this.getView().byId("Formulario").close();
-		},
-		cerrarPopCarga: function () {
-			this.getView().byId("Formulario").close();
-		},
-
-		limpieza: function () {
-			oView.byId("material").setValue();
-			oView.byId("Cantidad").setValue();
-			//INICIO
-			this.getView().byId("uplExcel").clear();
-			oView.byId("labelcredito").setText("Límite de Crédito : $")
-				//FIN
-			oView.byId("Pdealer").setValue();
-			oView.byId("interlocutor").setSelectedKey();
-			//	oSAPuser = "";
-			data = "";
-			arrjson = "";
-			Respuesta = [];
-			mnext = [];
-			cantorg = [];
-			var arryt = [];
-			var dataT = new sap.ui.model.json.JSONModel(arryt);
-			oView.setModel(dataT, "listadoMateriales");
-			//console.log(oView.byId("Pdealer").getValue() + "," + oView.byId("interlocutor").getSelectedKey() + "," + data + "," + arrjson);
-
+		mayuscula: function (oEvent) {
+			var txt = oEvent.getSource();
+			txt.setValue(txt.getValue().toUpperCase());
 		}
 
 	});
