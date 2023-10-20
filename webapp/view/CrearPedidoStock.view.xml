@@ -11,8 +11,8 @@
 									displayInline="false">
 									<items>
 										<Text text="Solicitante" width="100%" maxLines="1" wrapping="false" textAlign="Begin" textDirection="Inherit"/>
-										<ComboBox xmlns="sap.m" id="cmbcliente" placeholder="Solicitante" width="100%" items="{/Solicitantes}" loadItems="loadSolicitantes"
-											change="loadSolicitanteDependantData">
+										<ComboBox id="cmbcliente" width="100%" items="{/Solicitantes}" selectedKey="{/Pedido/Solicitante/Valor}" editable="{/Pedido/Solicitante/Editable}"
+										change="loadSolicitanteDependantData">
 											<items>
 												<core:Item key="{SOLICITANTE}" text="{NOMBRE_SOLICITANTE}"/>
 											</items>
@@ -25,7 +25,7 @@
 									<items>
 										<Text text="Pedido Dealer" width="100%" maxLines="1" wrapping="false" textAlign="Begin" textDirection="Inherit"/>
 										<!--<MaskInput id="Pdealer" width="100%" placeholder="PS_1234567890" mask="PS_CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" placeholderSymbol="">-->
-										<MaskInput id="Pdealer" width="100%" placeholder="EX_ST1234567890" mask="EX_STCCCCCCCCCC" placeholderSymbol="">
+										<MaskInput id="Pdealer" width="100%" value="{/Pedido/PedidoDealer/Valor}" placeholder="EX_ST1234567890" mask="EX_STCCCCCCCCCC" placeholderSymbol="">
 											<rules>
 												<MaskInputRule maskFormatSymbol="C" regex="[^_]"/>
 											</rules>
