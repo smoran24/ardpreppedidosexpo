@@ -52,14 +52,8 @@
 									displayInline="false">
 									<items>
 										<Text text="Material" width="100%" maxLines="1" wrapping="false" textAlign="Begin" textDirection="Inherit"/>
-										<!-- <Input id="material" type="Text" placeholder="Material" showSuggestion="true" showValueHelp="true" valueHelpRequest="handleValueHelp" liveChange="mayuscula"
-											suggestionItems="{path: 'material>/'}">
-											<suggestionItems>
-												<core:Item text="{material>MATERIAL}"/>
-											</suggestionItems>
-										</Input> -->
 										<Input id="material" type="Text" placeholder="Material" showSuggestion="true" showValueHelp="true" valueHelpRequest="handleMaterialesValueHelp" liveChange="mayuscula"
-											suggestionItems="{/Materiales/Valor}">
+											suggestionItems="{/Materiales/Valor}" value="{/Pedido/ListaMateriales/ValorPorAgregar/Material}">
 											<suggestionItems>
 												<core:Item text="{MATERIAL}"/>
 											</suggestionItems>
@@ -69,21 +63,16 @@
 								<HBox width="20px"/>
 								<HBox alignItems="Stretch" direction="Column" fitContainer="false" width="50%" justifyContent="Start" renderType="Bare" visible="true"
 									displayInline="false">
-								
 									<items>
-										
 										<Text text="Cantidad" width="100%" maxLines="1" wrapping="false" textAlign="Begin" textDirection="Inherit"/>
 										<HBox>
-										<!--<Input width="100%" id="Cantidad" placeholder="Ingrese Cantidad" type="Number" liveChange="validacantidadm"/>-->
-										<MaskInput id="Cantidad" width="100%" placeholder="Ingrese Cantidad" mask="999999" placeholderSymbol=" "/>
-									
-									<HBox width="20px"/>
-								
-										<Text text=" " width="100%" maxLines="1" wrapping="false" textAlign="Begin" textDirection="Inherit"/>
-										<Button type="Accept" icon="sap-icon://add" press="camino" width="100%" text="Cargar Material"/>
+											<!--<Input width="100%" id="Cantidad" placeholder="Ingrese Cantidad" type="Number" liveChange="validacantidadm"/>-->
+											<MaskInput id="Cantidad" width="100%" value="{/Pedido/ListaMateriales/ValorPorAgregar/Cantidad}" placeholder="Ingrese Cantidad" mask="999999" placeholderSymbol=" "/>
+											<HBox width="20px"/>
+											<Text text=" " width="100%" maxLines="1" wrapping="false" textAlign="Begin" textDirection="Inherit"/>
+											<Button type="Accept" icon="sap-icon://add" press="addOrEditMaterialPedido" width="100%" text="Cargar Material"/>
 										</HBox>
 									</items>
-								
 								</HBox>
 							</HBox>
 						</Panel>
@@ -99,7 +88,7 @@
 							</HBox>
 						</Panel>
 						<!--tabla-->
-						<Table noDataText="Sin datos" items="{ path : 'listadoMateriales>/'}" id="tMaestra" width="50%" growingScrollToLoad="true"
+						<Table noDataText="Sin datos" items="{/Pedido/ListaMateriales/Valor}" id="tMaestra" width="50%" growingScrollToLoad="true"
 								backgroundDesign="Transparent">
 							<columns>
 								<Column mergeDuplicates="false">
@@ -126,10 +115,10 @@
 							<items>
 								<ColumnListItem type="Active">
 									<cells>
-										<Text text="{listadoMateriales>material}"/>
-										<Text text="{listadoMateriales>cantidad}"/>
-										<Button type="Ghost" icon="sap-icon://edit" press="Editar" width="100%"/>
-										<Button type="Ghost" icon="sap-icon://delete" press="handleDelete" width="100%"/>
+										<Text text="{Material}"/>
+										<Text text="{Cantidad}"/>
+										<Button type="Ghost" icon="sap-icon://edit" press="editModeMaterialEnPedido" width="100%"/>
+										<Button type="Ghost" icon="sap-icon://delete" press="deleteMaterialDePedido" width="100%"/>
 									</cells>
 								</ColumnListItem>
 							</items>
