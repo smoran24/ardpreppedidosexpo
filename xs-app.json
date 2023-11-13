@@ -34,14 +34,14 @@
       "source": "^/destinations/AR_DP_DEST_CPI/(.*)$",
       "target": "$1",
       "authenticationType": "basic",
-      "destination": "AR_DP_DEST_CPI",
+      "destination": "AR_DP_DEST_CPI_QAS_NEO",
       "csrfProtection": false
     },
     {
       "source": "^/destinations/AR_DP_DEST_ODATA/(.*)$",
       "target": "$1",
       "authenticationType": "xsuaa",
-      "destination": "AR_DP_DEST_ODATA",
+      "destination": "ODataProvisioningQAS",
       "csrfProtection": false
     },
     {
