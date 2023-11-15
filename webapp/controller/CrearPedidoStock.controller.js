@@ -122,33 +122,29 @@ sap.ui.define([
 			
 			return dfdSolicitantes;
 		},
-		loadMateriales: function(force){
-			let objectMateriales = this._localModel.getProperty("/Materiales");
+		loadMateriales: function(aFilters){
+
+			let dfdMateriales = $.Deferred();
+			this._oDataHanaModel.read("/material", {
+				filters:aFilters,
+				success: function(datos){
+					that._localModel.setProperty("/Materiales/Valor", datos.results);
+					
+					dfdMateriales.resolve();
+				},
+				error: function(){
+					MessageBox.error("Error al cargar los materiales, contacte a soporte.",{
+						title: "Error de comunicación"
+					});
+				}
+			});	
 			
-			if(!objectMateriales.Promesa || force){
-				let dfdMateriales = $.Deferred();
-				this._oDataHanaModel.read("/material", {
-					success: function(datos){
-						that._localModel.setProperty("/Materiales/Valor", datos.results);
-						
-						dfdMateriales.resolve();
-					},
-					error: function(){
-						MessageBox.error("Error al cargar los materiales, contacte a soporte.",{
-							title: "Error de comunicación"
-						});
-					}
-				});	
-				
-				this._localModel.setProperty("/Materiales", {
-					Valor: [],
-					Promesa: dfdMateriales
-				});
-				
-				return dfdMateriales;
-			}else{
-				return objectMateriales.Promesa;
-			}
+			this._localModel.setProperty("/Materiales", {
+				Valor: [],
+				Promesa: dfdMateriales
+			});
+			
+			return dfdMateriales;
 		},
 		loadLimiteCredito: function(solicitante){
 			let dfdLimiteCredito = $.Deferred(); 
@@ -363,8 +359,9 @@ sap.ui.define([
 				this.verificarStock(pedido.Solicitante.Valor);
 			}
 		},
-		verificarStock: function(solicitante){
-			let listaMaterialesFormateada = this.getListaMaterialesFormateada(solicitante);
+		verificarStock: async function(solicitante){
+			let that = this;
+			let listaMaterialesFormateada = await this.getListaMaterialesFormateada(solicitante);
 			
 			if(listaMaterialesFormateada.length == 0){
 				MessageBox.error("Los materiales ingresados no son validos.");
@@ -379,8 +376,8 @@ sap.ui.define([
 			});
 			
 			this.getToken().then(function(token){
-                var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
-               var appModulePath = jQuery.sap.getModulePath(appid);
+                var appid = that.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
+               	var appModulePath = jQuery.sap.getModulePath(appid);
 				$.ajax({
 					type: 'POST',
 					url:appModulePath + '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_4_SRV;v=1/HeaderSet',
@@ -429,9 +426,12 @@ sap.ui.define([
 			return dfdToken;
 		},
 		
-		getListaMaterialesFormateada: function(solicitante){
-			let materiales = this._localModel.getProperty("/Materiales/Valor");
+		getListaMaterialesFormateada: async function(solicitante){
 			let listaMaterialesSeleccionados = this._localModel.getProperty("/Pedido/ListaMateriales/Valor");
+			if (!listaMaterialesSeleccionados.length) return; 
+			var aFiltros = listaMaterialesSeleccionados.map (oMaterial => new sap.ui.model.Filter("MATERIAL", sap.ui.model.FilterOperator.EQ, oMaterial.Material));
+			await this.loadMateriales(aFiltros);
+			let materiales = this._localModel.getProperty("/Materiales/Valor");
 			let cantidadesMateriales = this.contarMateriales(listaMaterialesSeleccionados);
 			
 			let listaMaterialesFormateada = [];
@@ -479,7 +479,8 @@ sap.ui.define([
 		
 		navToVerificadoStock: function(){
 			var oRouter = this.getOwnerComponent().getRouter();
-			oRouter.navTo("VerificadoStock");
+			//oRouter.navTo("CrearPedidoVerificado/{data}");
+			oRouter.navTo("verificado");
 		},
 		
 		popCarga: function () {

@@ -144,7 +144,7 @@
                     "target": "CrearPedidoStock"
                 },
                 {
-                    "pattern": "CrearPedidoVerificado/{data}",
+                    "pattern": "CrearPedidoVerificado",
                     "name": "verificado",
                     "target": "CrearPedidoVerificado"
                 },
@@ -164,12 +164,12 @@
                     "target": "VerificadoDiferido"
                 },
                 {
-                    "pattern": "VerificaInmovilizado/{data}",
+                    "pattern": "VerificaInmovilizado",
                     "name": "verificadoInmovilizado",
                     "target": "VerificaInmovilizado"
                 },
                 {
-                    "pattern": "VerificadoUrgente/{data}",
+                    "pattern": "VerificadoUrgente",
                     "name": "VerificadoUrgente",
                     "target": "VerificadoUrgente"
                 },

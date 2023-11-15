@@ -4,8 +4,7 @@
 		<pages>
 			<Page title="Verificación pedido Inmovilizado">
 				<content>
-					<!--tabla-->
-					<Table id="Result" inset="false" showSeparators="All" alternateRowColors="true" items="{ path : 'listadoMateriales>/'}">
+					<Table id="Result" inset="false" showSeparators="All" alternateRowColors="true" items="{/Pedido/ListaMateriales/Valor}">
 						<columns>
 							<Column width="10%">
 								<Text text="{i18n>CodigoPatente}"/>
@@ -34,13 +33,13 @@
 							<Column width="10%">
 								<Text text="{i18n>PrecioVenta}"/>
 							</Column>
-								<Column width="7%">
+							<Column width="7%">
 								<Text text="Cantidad Pedido"/>
 							</Column>
 								<Column width="6%">
 								<Text text=" "/>
 							</Column>
-							<Column width="8%" id = "cantstock">
+							<Column width="8%" id = "cantstock" visible="{/Pedido/ListaMateriales/MostrarColumnaCantidadStock}">
 								<Text text="Cantidad Stock"/>
 							</Column>
 							<Column width="5%">
@@ -52,35 +51,28 @@
 							</Column>
 						</columns>
 						<items>
-								<ColumnListItem>
+							<ColumnListItem>
 								<cells>
-									<Text text="{listadoMateriales>codigopat}"/>
-									<Text text="{listadoMateriales>descrip}"/>
-									<Text text="{listadoMateriales>unidad}"/>
-									<core:Icon src="{listadoMateriales>color}" height="20px" width="25px" class="size2" color="{listadoMateriales>ncolor}"/>
-										<Text text="{=${listadoMateriales>Precio} > 0 ? ${listadoMateriales>Precio} + ' ARS' : ${listadoMateriales>Precio}}"/>
-									<!--<Text text="{listadoMateriales>Precio}"/>-->
-									<Text text="{=${listadoMateriales>Descuento} > 0 ? ${listadoMateriales>Descuento} + ' ARS' : ${listadoMateriales>Descuento}}"/>
-									<!--<Text text="{listadoMateriales>Descuento}"/>-->
-									<Text text="{=${listadoMateriales>Recargo} > 0 ? ${listadoMateriales>Recargo} + ' ARS' : ${listadoMateriales>Recargo}}"/>
-									<!--<Text text="{listadoMateriales>Recargo}"/>-->
-									<Text text="{=${listadoMateriales>PrecioFinal} > 0 ? ${listadoMateriales>PrecioFinal} + ' ARS' : ${listadoMateriales>PrecioFinal}}"/>
-									<Text text="{=${listadoMateriales>PrecioVenta} > 0 ? ${listadoMateriales>PrecioVenta} + ' ARS' : ${listadoMateriales>PrecioVenta}}"/>
-									<!--<Text text="{listadoMateriales>PrecioFinal}"/>-->
-									<!--<Text text="{listadoMateriales>PrecioVenta}"/>-->
-									<Input id="input_cant" value="{listadoMateriales>CantPed}" editable="false"/>
-									<core:Icon visible="{=${listadoMateriales>CantOrg}!==${listadoMateriales>CantPed} || ${listadoMateriales>cant} > 1 ? true:false}" src="sap-icon://status-critical"
+									<Text text="{Material}"/>
+									<Text text="{Descripcion}"/>
+									<Text text="{Unidad}"/>
+									<core:Icon src="{StockIcono}" height="20px" width="25px" class="size2" color="{StockColor}"/>
+									<Text text="{=${Precio} > 0 ? ${Precio} + ' ARS' : ${Precio}}"/>
+									<Text text="{=${Descuento} > 0 ? ${Descuento} + ' ARS' : ${Descuento}}"/>
+									<Text text="{=${Recargo} > 0 ? ${Recargo} + ' ARS' : ${Recargo}}"/>
+									<Text text="{=${PrecioFinal} > 0 ? ${PrecioFinal} + ' ARS' : ${PrecioFinal}}"/>
+									<Text text="{=${PrecioVenta} > 0 ? ${PrecioVenta} + ' ARS' : ${PrecioVenta}}"/>
+									<Input id="input_cant" value="{Cantidad}" editable="false"/>
+									<core:Icon visible="{CantPedAjustado}" src="sap-icon://status-critical"
 										color="#ffbc05" height="20px" width="25px" class="size2"  tooltip="La cantidad se ha ajustado de acuerdo al múltiplo o mínimo y consolidando los registros para el mismo material"  press="mensaje"/>
-									<Text text="{listadoMateriales>CantAsig}" id ="cantsotck2"/>
-									<CheckBox id="backorder" selected="{=${listadoMateriales>backOrder}===true? true:false}" select="check" blocked="{=${listadoMateriales>CantAsig}===0? true:false}"/>
+									<Text text="{CantAsig}" visible="{/Pedido/ListaMateriales/MostrarColumnaCantidadStock}"/>
+									<CheckBox id="backorder" selected="{= ${BackOrder} === true ? true:false}" select="check" blocked="{= ${CantAsig} === 0 ? true : false}"/>
 									
-									<!--<Button id="btnEdit" icon="sap-icon://request"/>-->
 									<Button id="btnEliminar" icon="sap-icon://delete" press="handleDelete"/>
 								</cells>
 							</ColumnListItem>
 						</items>
 					</Table>
-					<!--fin tabla -->
 				</content>
 				<customHeader>
 					<Bar class="sapContrastPlus" design="Header" visible="true">
@@ -93,14 +85,13 @@
 				<footer >
 					<Bar class="sapContrast sapContrastPlus">
 						<contentLeft>
-							<!--<Button id="messagePopoverBtn" icon="{ path: '/', formatter: '.buttonIconFormatter' }"-->
-							<!--	type="{ path: '/', formatter: '.buttonTypeFormatter' }" press=".handleMessagePopoverPress"/>-->
-							<Button id="malos" text="Pendientes" type="Reject" press="handleValueHelp" icon="sap-icon://warning"/>
+							<Button id="malos" text="Pendientes" type="Reject" press="handleValueHelpMaterialesRechazados" icon="sap-icon://warning"
+							visible="{= ${/Pedido/ListaMateriales/ListaMaterialesSeleccionadosNoExistentes}.length > 0}"/>
 						</contentLeft>
 						<contentRight>
-							<Button id="gp" text="Generar Pedido" type="Accept" press="ConsultaOdata" class="sapUiSmallMarginEnd"/>
-							<Button id="atras" text="Atrás" type="Reject" press="atras" class="sapUiSmallMarginEnd"/>
-							<Button id="Cancelar" text="Salir" type="Reject" press="homeedemandaperdida" class="sapUiSmallMarginEnd"/>
+							<Button id="gp" text="Generar Pedido" type="Accept" press="generarPedido" class="sapUiSmallMarginEnd"/>
+							<Button id="atras" text="Atrás" type="Reject" press="navBack" class="sapUiSmallMarginEnd"/>
+							<Button id="Cancelar" text="Salir" type="Reject" press="cancelarPedido" class="sapUiSmallMarginEnd"/>
 						</contentRight>
 					</Bar>
 				</footer>

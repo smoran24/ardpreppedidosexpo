@@ -136,6 +136,7 @@ sap.ui.define([
 		},
 		
 		generarPedidoPorOData: function(usePP){
+			let that = this;
 			let dfdGenerarPedido = $.Deferred();
 			let pedido = that._localModel.getProperty("/Pedido");
 			
@@ -156,7 +157,7 @@ sap.ui.define([
 					let urlCrearPedido = '/destinations/AR_DP_DEST_ODATA/odata/SAP/Z_NARG_DP_CREAR_PEDIDO_SRV';
 					urlCrearPedido += usePP ? "" : ";o=AR_DP_ERP_OP_USER_COM";
 					urlCrearPedido += "/HeaderSet";
-					var appid = this.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
+					var appid = that.getOwnerComponent().getManifestEntry("/sap.app/id").replaceAll(".","/");
   var appModulePath = jQuery.sap.getModulePath(appid);
 					$.ajax({
 						type: 'POST',
