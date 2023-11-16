@@ -299,7 +299,7 @@ sap.ui.define([
 						"Cliente": pedido.Solicitante.Valor,
 						"Dest": pedido.Destinatario.Valor,
 						"PedWeb": pedidoDealer,
-						"Tipo": "YNCA",
+						"Tipo": "YNEI",
 						"Material": material.Material,
 						"CantPed": cantPedAEnviar.toString(),
 						"Vin": pedido.VIN.Valor,
@@ -370,7 +370,7 @@ sap.ui.define([
 					"FECHA": new Date(),
 					"ID_SOLICITANTE": pedido.Solicitante.Valor,
 					"ID_DESTINARIO": pedido.Destinatario.Valor,
-					"ID_TIPOPEDIDO": "YNCA"
+					"ID_TIPOPEDIDO": "YNEI"
 				};
 				
 				that._oDataHanaModel.create("/PedidoDemanda", data, {success: function (odata, oResponse) {
