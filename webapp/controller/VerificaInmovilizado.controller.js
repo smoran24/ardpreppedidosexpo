@@ -100,10 +100,10 @@ sap.ui.define([
 		
 		generarPedido: function(){
 			Utils.isCurrentUserANissanUser().then(function(isNissanUser){
-				that.generarPedidoPorOData(isNissanUser).then(function(nroPedido){
+				that.generarPedidoPorOData(isNissanUser)/*.then(function(nroPedido){
 					//TODO auditoria, todavia no poner en PRD
 					that.generarEntradaAuditoria(nroPedido);
-				});
+				});*/
 			});
 		},
 		
