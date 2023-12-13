@@ -349,7 +349,7 @@ sap.ui.define([
 		},
 		
 		cancelarPedido: function(){
-			this.registrarDemanda();
+			//this.registrarDemanda();
 			this.navMenuPrincipal();
 		},
 		navMenuPrincipal: function(){
@@ -373,10 +373,10 @@ sap.ui.define([
 					"ID_TIPOPEDIDO": "YNEI"
 				};
 				
-				that._oDataHanaModel.create("/PedidoDemanda", data, {success: function (odata, oResponse) {
+				/*that._oDataHanaModel.create("/PedidoDemanda", data, {success: function (odata, oResponse) {
 						that.registrarDetalleDeDemanda(odata.ID_PEDIDO, pedido.ListaMateriales.Valor);
 					}
-				});
+				});*/
 			});
 		},
 		registrarDetalleDeDemanda: function (idPedidoDemanda, listaMateriales) {
